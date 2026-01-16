@@ -36,6 +36,9 @@
 			if(isset($_SESSION['username']))
 				$htmlUsername = htmlspecialchars($_SESSION['username'], ENT_QUOTES, 'UTF-8');
 			?>
+			<?php if(defined('ENABLE_CONFIG_BACKUP') && ENABLE_CONFIG_BACKUP) { ?>
+				<a href='backup.php' class='slubbutton secondary' id='backupbtn' title='<?php translate('Backup switch configurations'); ?>'><?php translate('Backup'); ?></a>
+			<?php } ?>
 			<?php if(ENABLE_PASSWORD_CHANGE) { ?>
 				<a href='password.php' class='slubbutton secondary' id='pwchangebtn' title='Passwort auf allen Switchen ändern'><?php translate('Change Password'); ?></a>
 			<?php } ?>

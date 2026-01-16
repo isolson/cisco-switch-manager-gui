@@ -6,9 +6,11 @@
 #
 # const SWITCHES = [
 # 	[
-# 		'addr'  => '10.1.2.3',                 # The address of your switch. Can be an IP-Adress or DNS name. Also used as identifier - it has to be unique.
-# 		'name'  => 'demoswitch - Room 3.400',  # Name or description of your Switch, may contains additional information like room number etc.
-# 		'group' => 'Group 1',                  # Set a group name, e.g. 'Floor 1'.
+# 		'addr'       => '10.1.2.3',                 # The address of your switch. Can be an IP-Adress or DNS name. Also used as identifier - it has to be unique.
+# 		'name'       => 'demoswitch - Room 3.400',  # Name or description of your Switch, may contains additional information like room number etc.
+# 		'group'      => 'Group 1',                  # Set a group name, e.g. 'Floor 1'.
+# 		'credential' => 'default',                  # (Optional) Reference to a CREDENTIAL_TEMPLATES id for automated backups.
+#		                                            # If not set, uses the first template or requires manual login credentials.
 # 	],
 # 	... more switch entries here ...
 # ];
@@ -142,3 +144,42 @@ const MAPS = [ # TODO: remove the examples and (optional) create your own maps
 	],
 	/* ... */
 ];
+
+
+/*** CONFIG BACKUP SETTINGS ***/
+
+// enable or disable the config backup feature
+const ENABLE_CONFIG_BACKUP = false; #(true|false)
+
+// directory where config backups are stored (relative to web root or absolute path)
+// this directory should be outside the web root for security
+const BACKUP_DIR = '/var/lib/switchconfig/backups';
+
+// number of backup versions to keep per switch (0 = unlimited)
+const BACKUP_RETENTION_COUNT = 30;
+
+// credential templates for automated backups (cron jobs)
+// switches can reference these by 'credential' key, or define unique credentials
+const CREDENTIAL_TEMPLATES = [
+	/*
+	[
+		'id'       => 'default',           # unique identifier for this template
+		'name'     => 'Default Backup User', # display name
+		'username' => 'backup_user',       # SSH username
+		'password' => 'secure_password',   # SSH password (consider using environment variables)
+	],
+	[
+		'id'       => 'readonly',
+		'name'     => 'Read-Only User',
+		'username' => 'monitor',
+		'password' => 'monitor_pass',
+	],
+	*/
+];
+
+// GitHub sync settings for config backup repository
+// configured via the web UI setup wizard, stored in backup_settings.json
+const GITHUB_SYNC_ENABLED = false; #(true|false)
+
+// path to backup settings file (created by setup wizard)
+const BACKUP_SETTINGS_FILE = '/var/lib/switchconfig/backup_settings.json';
