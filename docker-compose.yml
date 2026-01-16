@@ -1,9 +1,20 @@
 services:
-  switchconfig-server:
+  switchconfig:
     build: .
+    container_name: switchconfig
+    restart: unless-stopped
     ports:
-      - 8088:80
+      - "8088:80"
     volumes:
-      # You need to copy the config.php.example to config.php
-      # and add your swicthes and options
-      - ./config.php:/var/www/switchconfig/config.php
+      # Configuration file - copy config.php.example to config.php and customize
+      - ./config.php:/var/www/switchconfig/config.php:ro
+      # Persistent backup storage
+      - switchconfig-backups:/var/lib/switchconfig/backups
+      # Backup settings (GitHub credentials, etc.)
+      - ./backup_settings.json:/var/lib/switchconfig/backup_settings.json
+    environment:
+      - TZ=America/Chicago
+
+volumes:
+  switchconfig-backups:
+    name: switchconfig-backups

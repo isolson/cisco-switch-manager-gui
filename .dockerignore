@@ -1,0 +1,34 @@
+# Git
+.git
+.gitignore
+
+# Docker
+Dockerfile
+docker-compose*.yml
+.dockerignore
+
+# Development/docs
+*.md
+docs/
+.github/
+
+# Config files (mounted as volumes)
+config.php
+backup_settings.json
+
+# Install scripts
+install-pi.sh
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Maps (user-provided)
+maps/*.png
+maps/*.jpg
