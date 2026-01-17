@@ -92,7 +92,7 @@ if($cSwitch != null) {
 <!DOCTYPE html>
 <html>
 <head>
-	<title><?php translate('Switchconfig'); ?></title>
+	<title><?php translate('Cisco Switch Manager GUI'); ?></title>
 	<?php require('head.inc.php'); ?>
 	<script language='javascript' type='text/javascript' src='js/explode.js'></script>
 </head>

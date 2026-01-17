@@ -149,7 +149,7 @@ function cleanRunningConfig($raw) {
  * @return array ['success' => bool, 'path' => string, 'error' => string]
  */
 function saveConfigBackup($switchAddr, $switchName, $config) {
-	$backupDir = defined('BACKUP_DIR') ? BACKUP_DIR : '/var/lib/switchconfig/backups';
+	$backupDir = defined('BACKUP_DIR') ? BACKUP_DIR : '/var/lib/cisco-switch-manager-gui/backups';
 
 	// Create safe directory name from switch address
 	$safeName = preg_replace('/[^a-zA-Z0-9._-]/', '_', $switchAddr);
@@ -221,7 +221,7 @@ function cleanupOldBackups($switchDir) {
 function getBackupSettings() {
 	$settingsFile = defined('BACKUP_SETTINGS_FILE')
 		? BACKUP_SETTINGS_FILE
-		: '/var/lib/switchconfig/backup_settings.json';
+		: '/var/lib/cisco-switch-manager-gui/backup_settings.json';
 
 	if (!file_exists($settingsFile)) {
 		return [
@@ -252,7 +252,7 @@ function getBackupSettings() {
 function saveBackupSettings($settings) {
 	$settingsFile = defined('BACKUP_SETTINGS_FILE')
 		? BACKUP_SETTINGS_FILE
-		: '/var/lib/switchconfig/backup_settings.json';
+		: '/var/lib/cisco-switch-manager-gui/backup_settings.json';
 
 	// Ensure directory exists
 	$dir = dirname($settingsFile);
@@ -271,7 +271,7 @@ function saveBackupSettings($settings) {
  * @return array ['success' => bool, 'error' => string]
  */
 function initGitRepo() {
-	$backupDir = defined('BACKUP_DIR') ? BACKUP_DIR : '/var/lib/switchconfig/backups';
+	$backupDir = defined('BACKUP_DIR') ? BACKUP_DIR : '/var/lib/cisco-switch-manager-gui/backups';
 
 	if (!is_dir($backupDir)) {
 		if (!@mkdir($backupDir, 0755, true)) {
@@ -308,7 +308,7 @@ function initGitRepo() {
  * @return array ['success' => bool, 'error' => string]
  */
 function configureGitRemote($repoUrl, $token) {
-	$backupDir = defined('BACKUP_DIR') ? BACKUP_DIR : '/var/lib/switchconfig/backups';
+	$backupDir = defined('BACKUP_DIR') ? BACKUP_DIR : '/var/lib/cisco-switch-manager-gui/backups';
 
 	// Parse repo URL to inject token
 	$parsedUrl = parse_url($repoUrl);
@@ -345,7 +345,7 @@ function configureGitRemote($repoUrl, $token) {
  * @return array ['success' => bool, 'error' => string]
  */
 function syncToGitHub($message = null) {
-	$backupDir = defined('BACKUP_DIR') ? BACKUP_DIR : '/var/lib/switchconfig/backups';
+	$backupDir = defined('BACKUP_DIR') ? BACKUP_DIR : '/var/lib/cisco-switch-manager-gui/backups';
 	$settings = getBackupSettings();
 
 	if (!$settings['github_configured']) {
@@ -360,8 +360,8 @@ function syncToGitHub($message = null) {
 	$returnCode = 0;
 
 	// Configure git user if not set
-	exec('cd ' . escapeshellarg($backupDir) . ' && git config user.email "switchconfig@localhost" 2>&1', $output, $returnCode);
-	exec('cd ' . escapeshellarg($backupDir) . ' && git config user.name "SwitchConfig Backup" 2>&1', $output, $returnCode);
+	exec('cd ' . escapeshellarg($backupDir) . ' && git config user.email "cisco-switch-manager-gui@localhost" 2>&1', $output, $returnCode);
+	exec('cd ' . escapeshellarg($backupDir) . ' && git config user.name "Cisco Switch Manager GUI Backup" 2>&1', $output, $returnCode);
 
 	// Add all changes
 	exec('cd ' . escapeshellarg($backupDir) . ' && git add -A 2>&1', $output, $returnCode);
@@ -409,7 +409,7 @@ function syncToGitHub($message = null) {
  * @return array List of backup files with metadata
  */
 function getBackupsForSwitch($switchAddr) {
-	$backupDir = defined('BACKUP_DIR') ? BACKUP_DIR : '/var/lib/switchconfig/backups';
+	$backupDir = defined('BACKUP_DIR') ? BACKUP_DIR : '/var/lib/cisco-switch-manager-gui/backups';
 	$safeName = preg_replace('/[^a-zA-Z0-9._-]/', '_', $switchAddr);
 	$switchDir = $backupDir . '/configs/' . $safeName;
 

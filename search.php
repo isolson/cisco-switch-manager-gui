@@ -17,7 +17,7 @@ if(isset($_GET['switch']) && $_GET['switch'] != "") {
 <!DOCTYPE html>
 <html>
 <head>
-	<title><?php translate('MAC Search'); ?> - <?php translate('Switchconfig'); ?></title>
+	<title><?php translate('MAC Search'); ?> - <?php translate('Cisco Switch Manager GUI'); ?></title>
 	<?php require('head.inc.php'); ?>
 </head>
 <body>

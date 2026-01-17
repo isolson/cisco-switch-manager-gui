@@ -1,20 +1,20 @@
 services:
-  switchconfig:
+  cisco-switch-manager-gui:
     build: .
-    container_name: switchconfig
+    container_name: cisco-switch-manager-gui
     restart: unless-stopped
     ports:
       - "8088:80"
     volumes:
       # Configuration file - copy config.php.example to config.php and customize
-      - ./config.php:/var/www/switchconfig/config.php:ro
+      - ./config.php:/var/www/cisco-switch-manager-gui/config.php:ro
       # Persistent backup storage
-      - switchconfig-backups:/var/lib/switchconfig/backups
+      - cisco-switch-manager-gui-backups:/var/lib/cisco-switch-manager-gui/backups
       # Backup settings (GitHub credentials, etc.)
-      - ./backup_settings.json:/var/lib/switchconfig/backup_settings.json
+      - ./backup_settings.json:/var/lib/cisco-switch-manager-gui/backup_settings.json
     environment:
       - TZ=America/Chicago
 
 volumes:
-  switchconfig-backups:
-    name: switchconfig-backups
+  cisco-switch-manager-gui-backups:
+    name: cisco-switch-manager-gui-backups

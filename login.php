@@ -72,7 +72,7 @@ if(isset($_SESSION['username']) && isset($_GET['logout'])) {
 <!DOCTYPE html>
 <html>
 <head>
-	<title><?php translate('Switchconfig'); ?> - <?php translate('Log In'); ?></title>
+	<title><?php translate('Cisco Switch Manager GUI'); ?> - <?php translate('Log In'); ?></title>
 	<?php require('head.inc.php'); ?>
 	<script type='text/javascript' src='webdesign-template/js/main.js'></script>
 	<script type='text/javascript' src='js/explode.js'></script>
@@ -99,7 +99,7 @@ if(isset($_SESSION['username']) && isset($_GET['logout'])) {
 	}
 	</script>
 
-	<a id='forkme' href='https://github.com/slub/switchconfig'><img src='img/forkme.png'></a>
+	<a id='forkme' href='https://github.com/isolson/cisco-switch-manager-gui'><img src='img/forkme.png'></a>
 
 	<div id='container'>
 		<h1 id='title'><div id='logo'></div></h1>

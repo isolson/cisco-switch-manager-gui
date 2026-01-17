@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Setup scheduled backups for SwitchConfig (Docker)
+# Setup scheduled backups for Cisco Switch Manager GUI (Docker)
 #
 # This script creates a cron job that runs daily backups
 # and syncs to GitHub if configured.
@@ -8,7 +8,7 @@
 
 set -e
 
-INSTALL_DIR="${INSTALL_DIR:-/opt/switchconfig}"
+INSTALL_DIR="${INSTALL_DIR:-/opt/cisco-switch-manager-gui}"
 CRON_SCHEDULE="${CRON_SCHEDULE:-0 2 * * *}"  # Default: 2 AM daily
 
 # Colors
@@ -19,36 +19,36 @@ NC='\033[0m'
 echo -e "${GREEN}Setting up scheduled backups...${NC}"
 
 # Create the backup script
-BACKUP_SCRIPT="/usr/local/bin/switchconfig-backup"
+BACKUP_SCRIPT="/usr/local/bin/cisco-switch-manager-gui-backup"
 
 sudo tee "$BACKUP_SCRIPT" > /dev/null << EOF
 #!/bin/bash
-# SwitchConfig scheduled backup
+# Cisco Switch Manager GUI scheduled backup
 cd $INSTALL_DIR
-docker compose exec -T switchconfig php backup-cron.php --sync --quiet
+docker compose exec -T cisco-switch-manager-gui php backup-cron.php --sync --quiet
 EOF
 
 sudo chmod +x "$BACKUP_SCRIPT"
 
 # Add to crontab
-CRON_LINE="$CRON_SCHEDULE $BACKUP_SCRIPT >> /var/log/switchconfig-backup.log 2>&1"
+CRON_LINE="$CRON_SCHEDULE $BACKUP_SCRIPT >> /var/log/cisco-switch-manager-gui-backup.log 2>&1"
 
 # Check if already in crontab
-if crontab -l 2>/dev/null | grep -q "switchconfig-backup"; then
+if crontab -l 2>/dev/null | grep -q "cisco-switch-manager-gui-backup"; then
     echo -e "${YELLOW}Cron job already exists. Updating...${NC}"
-    (crontab -l 2>/dev/null | grep -v "switchconfig-backup"; echo "$CRON_LINE") | crontab -
+    (crontab -l 2>/dev/null | grep -v "cisco-switch-manager-gui-backup"; echo "$CRON_LINE") | crontab -
 else
     (crontab -l 2>/dev/null; echo "$CRON_LINE") | crontab -
 fi
 
 # Create log file
-sudo touch /var/log/switchconfig-backup.log
-sudo chmod 666 /var/log/switchconfig-backup.log
+sudo touch /var/log/cisco-switch-manager-gui-backup.log
+sudo chmod 666 /var/log/cisco-switch-manager-gui-backup.log
 
 echo -e "${GREEN}✓ Scheduled backup configured!${NC}"
 echo ""
 echo "Backup schedule: $CRON_SCHEDULE (daily at 2 AM)"
-echo "Log file: /var/log/switchconfig-backup.log"
+echo "Log file: /var/log/cisco-switch-manager-gui-backup.log"
 echo ""
 echo "To change the schedule, edit your crontab:"
 echo "  crontab -e"

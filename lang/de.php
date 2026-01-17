@@ -1,6 +1,6 @@
 <?php
 
-$_LANG['Switchconfig'] = 'Switchconfig';
+$_LANG['Cisco Switch Manager GUI'] = 'Cisco Switch Manager GUI';
 $_LANG['This web application allows you to configure Cisco switches through a graphical interface.'] = 'Mit dieser Webanwendung können Sie Cisco-Switche über eine grafische Oberfläche konfigurieren.';
 $_LANG['Please select'] = 'Bitte auswählen';
 $_LANG['Please wait...'] = 'Bitte warten...';
@@ -107,7 +107,7 @@ $_LANG['Do NOT initialize with README (leave empty)'] = 'Initialisieren Sie NICH
 $_LANG['Step 2: Create a Personal Access Token'] = 'Schritt 2: Persönlichen Zugriffstoken erstellen';
 $_LANG['Go to GitHub Settings > Developer settings > Personal access tokens > Tokens (classic)'] = 'Gehen Sie zu GitHub-Einstellungen > Entwicklereinstellungen > Persönliche Zugriffstoken > Token (klassisch)';
 $_LANG['Click "Generate new token (classic)"'] = 'Klicken Sie auf "Neuen Token generieren (klassisch)"';
-$_LANG['Give it a name like "switchconfig-backup"'] = 'Geben Sie ihm einen Namen wie "switchconfig-backup"';
+$_LANG['Give it a name like "cisco-switch-manager-gui-backup"'] = 'Geben Sie ihm einen Namen wie "cisco-switch-manager-gui-backup"';
 $_LANG['Select scope: "repo" (full control of private repositories)'] = 'Bereich auswählen: "repo" (vollständige Kontrolle über private Repositories)';
 $_LANG['Generate and copy the token (you won\'t see it again!)'] = 'Generieren und kopieren Sie den Token (Sie werden ihn nicht wieder sehen!)';
 $_LANG['Step 3: Configure Connection'] = 'Schritt 3: Verbindung konfigurieren';

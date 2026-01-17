@@ -56,7 +56,7 @@ if($cSwitch != null && $cSnippet != null) {
 <!DOCTYPE html>
 <html>
 <head>
-	<title><?php translate('Snippets'); ?> - <?php translate('Switchconfig'); ?></title>
+	<title><?php translate('Snippets'); ?> - <?php translate('Cisco Switch Manager GUI'); ?></title>
 	<?php require('head.inc.php'); ?>
 	<link rel='stylesheet' type='text/css' href='css/intstatuslist.css'>
 </head>

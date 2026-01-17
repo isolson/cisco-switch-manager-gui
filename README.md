@@ -1,4 +1,4 @@
-# Switchconfig
+# Cisco Switch Manager GUI
 Web application for managing Cisco switches via SSH
 
 ## Features

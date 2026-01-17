@@ -1,10 +1,10 @@
 FROM php:apache
-WORKDIR /var/www/switchconfig
+WORKDIR /var/www/cisco-switch-manager-gui
 
 # variables
-ENV WEBAPP_ROOT /var/www/switchconfig
+ENV WEBAPP_ROOT /var/www/cisco-switch-manager-gui
 ENV APACHE_DOCUMENT_ROOT ${WEBAPP_ROOT}
-ENV BACKUP_DIR /var/lib/switchconfig/backups
+ENV BACKUP_DIR /var/lib/cisco-switch-manager-gui/backups
 
 # set up apache
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf && \

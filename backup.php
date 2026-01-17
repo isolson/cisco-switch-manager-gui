@@ -132,7 +132,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <!DOCTYPE html>
 <html>
 <head>
-	<title><?php echo translate('Config Backup', false); ?> - <?php echo translate('Switchconfig', false); ?></title>
+	<title><?php echo translate('Config Backup', false); ?> - <?php echo translate('Cisco Switch Manager GUI', false); ?></title>
 	<?php require('head.inc.php'); ?>
 	<style>
 	.backup-status { display: inline-block; padding: 2px 8px; border-radius: 3px; font-size: 0.9em; }
@@ -220,7 +220,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 							<ol>
 								<li><?php echo translate('Go to GitHub Settings > Developer settings > Personal access tokens > Tokens (classic)', false); ?></li>
 								<li><?php echo translate('Click "Generate new token (classic)"', false); ?></li>
-								<li><?php echo translate('Give it a name like "switchconfig-backup"', false); ?></li>
+								<li><?php echo translate('Give it a name like "cisco-switch-manager-gui-backup"', false); ?></li>
 								<li><?php echo translate('Select scope: "repo" (full control of private repositories)', false); ?></li>
 								<li><?php echo translate('Generate and copy the token (you won\'t see it again!)', false); ?></li>
 							</ol>
@@ -304,7 +304,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 					<!-- View Config Tab -->
 					<?php
 					$filePath = $_GET['file'];
-					$backupDir = defined('BACKUP_DIR') ? BACKUP_DIR : '/var/lib/switchconfig/backups';
+					$backupDir = defined('BACKUP_DIR') ? BACKUP_DIR : '/var/lib/cisco-switch-manager-gui/backups';
 
 					// Security: ensure file is within backup directory
 					$realPath = realpath($filePath);

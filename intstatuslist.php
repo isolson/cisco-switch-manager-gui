@@ -18,7 +18,7 @@ if(isset($_GET['switch']) && $_GET['switch'] != "") {
 <!DOCTYPE html>
 <html>
 <head>
-	<title><?php translate('Interface Status List'); ?> - <?php translate('Switchconfig'); ?></title>
+	<title><?php translate('Interface Status List'); ?> - <?php translate('Cisco Switch Manager GUI'); ?></title>
 	<?php require('head.inc.php'); ?>
 	<link rel='stylesheet' type='text/css' href='css/intstatuslist.css'>
 </head>

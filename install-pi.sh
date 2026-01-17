@@ -1,10 +1,10 @@
 #!/bin/bash
 #
-# SwitchConfig Raspberry Pi Installer
+# Cisco Switch Manager GUI Raspberry Pi Installer
 #
-# Usage: curl -fsSL https://raw.githubusercontent.com/isolson/switchconfig/master/install-pi.sh | bash
+# Usage: curl -fsSL https://raw.githubusercontent.com/isolson/cisco-switch-manager-gui/master/install-pi.sh | bash
 #
-# This script installs SwitchConfig on a Raspberry Pi using Docker.
+# This script installs Cisco Switch Manager GUI on a Raspberry Pi using Docker.
 #
 
 set -e
@@ -15,12 +15,12 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-INSTALL_DIR="${INSTALL_DIR:-/opt/switchconfig}"
-REPO_URL="${REPO_URL:-https://github.com/isolson/switchconfig.git}"
+INSTALL_DIR="${INSTALL_DIR:-/opt/cisco-switch-manager-gui}"
+REPO_URL="${REPO_URL:-https://github.com/isolson/cisco-switch-manager-gui.git}"
 
 echo -e "${GREEN}"
 echo "╔═══════════════════════════════════════════════════════════╗"
-echo "║           SwitchConfig Raspberry Pi Installer             ║"
+echo "║       Cisco Switch Manager GUI Raspberry Pi Installer     ║"
 echo "╚═══════════════════════════════════════════════════════════╝"
 echo -e "${NC}"
 
@@ -78,7 +78,7 @@ setup_repository() {
         cd "$INSTALL_DIR"
         git pull origin master || true
     else
-        echo -e "${YELLOW}Cloning SwitchConfig to $INSTALL_DIR...${NC}"
+        echo -e "${YELLOW}Cloning Cisco Switch Manager GUI to $INSTALL_DIR...${NC}"
         $SUDO mkdir -p "$INSTALL_DIR"
         $SUDO chown "$USER:$USER" "$INSTALL_DIR" 2>/dev/null || true
         git clone "$REPO_URL" "$INSTALL_DIR"
@@ -103,7 +103,7 @@ setup_config() {
     # Create a basic config
     cat > config.php << 'CONFIGEOF'
 <?php
-/*** CONFIG FILE FOR SWITCHCONFIG ***/
+/*** CONFIG FILE FOR CISCO SWITCH MANAGER GUI ***/
 
 // Enable config backup feature
 const ENABLE_CONFIG_BACKUP = true;
@@ -124,9 +124,9 @@ const VISIBLE_PORTS = ['Gi', 'Fa'];
 const HIDDEN_PORTS  = [];
 
 // Backup settings
-const BACKUP_DIR = '/var/lib/switchconfig/backups';
+const BACKUP_DIR = '/var/lib/cisco-switch-manager-gui/backups';
 const BACKUP_RETENTION_COUNT = 30;
-const BACKUP_SETTINGS_FILE = '/var/lib/switchconfig/backup_settings.json';
+const BACKUP_SETTINGS_FILE = '/var/lib/cisco-switch-manager-gui/backup_settings.json';
 
 // Credential templates for automated backups
 // Add your backup credentials here
@@ -179,10 +179,10 @@ start_container() {
     cd "$INSTALL_DIR"
 
     echo ""
-    echo -e "${YELLOW}Building and starting SwitchConfig...${NC}"
+    echo -e "${YELLOW}Building and starting Cisco Switch Manager GUI...${NC}"
     $COMPOSE_CMD up -d --build
 
-    echo -e "${GREEN}✓ SwitchConfig is running${NC}"
+    echo -e "${GREEN}✓ Cisco Switch Manager GUI is running${NC}"
 }
 
 # Print completion message
@@ -194,7 +194,7 @@ print_complete() {
     echo "║              Installation Complete!                       ║"
     echo "╚═══════════════════════════════════════════════════════════╝${NC}"
     echo ""
-    echo "SwitchConfig is now running!"
+    echo "Cisco Switch Manager GUI is now running!"
     echo ""
     echo -e "  ${GREEN}Web Interface:${NC} http://${LOCAL_IP}:8088"
     echo -e "  ${GREEN}Config File:${NC}   $INSTALL_DIR/config.php"

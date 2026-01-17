@@ -12,7 +12,7 @@ if(!ENABLE_PASSWORD_CHANGE) die('This feature is disabled.');
 <!DOCTYPE html>
 <html>
 <head>
-	<title><?php translate('Change Password'); ?> - <?php translate('Switchconfig'); ?></title>
+	<title><?php translate('Change Password'); ?> - <?php translate('Cisco Switch Manager GUI'); ?></title>
 	<?php require('head.inc.php'); ?>
 </head>
 <body>

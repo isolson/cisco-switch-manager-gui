@@ -11,7 +11,7 @@ require_once('lang.php');
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Maps - Switchconfig</title>
+	<title>Maps - Cisco Switch Manager GUI</title>
 	<?php require('head.inc.php'); ?>
 	<script language='javascript' type='text/javascript' src='js/move_on_drag.js'></script>
 </head>

@@ -1,6 +1,6 @@
 <div id='footer'>
 	<div>
-		<a href='https://github.com/slub/switchconfig'><img src='webdesign-template/img/help.svg'></a>
+		<a href='https://github.com/isolson/cisco-switch-manager-gui'><img src='webdesign-template/img/help.svg'></a>
 	</div>
 	<div>
 	</div>

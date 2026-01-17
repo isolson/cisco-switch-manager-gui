@@ -1,5 +1,5 @@
 <?php
-/*** CONFIG FILE FOR THE SWITCHCONFIG WEB APP ***/
+/*** CONFIG FILE FOR THE CISCO SWITCH MANAGER GUI WEB APP ***/
 
 /***
 # MANUAL: HOW TO USE THE MAIN CONFIG ARRAYS #
@@ -153,7 +153,7 @@ const ENABLE_CONFIG_BACKUP = false; #(true|false)
 
 // directory where config backups are stored (relative to web root or absolute path)
 // this directory should be outside the web root for security
-const BACKUP_DIR = '/var/lib/switchconfig/backups';
+const BACKUP_DIR = '/var/lib/cisco-switch-manager-gui/backups';
 
 // number of backup versions to keep per switch (0 = unlimited)
 const BACKUP_RETENTION_COUNT = 30;
@@ -182,4 +182,4 @@ const CREDENTIAL_TEMPLATES = [
 const GITHUB_SYNC_ENABLED = false; #(true|false)
 
 // path to backup settings file (created by setup wizard)
-const BACKUP_SETTINGS_FILE = '/var/lib/switchconfig/backup_settings.json';
+const BACKUP_SETTINGS_FILE = '/var/lib/cisco-switch-manager-gui/backup_settings.json';

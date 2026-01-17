@@ -105,7 +105,7 @@ if(isset($_GET['refreshtableonly']) && $_GET['refreshtableonly'] == "1")
 <!DOCTYPE html>
 <html>
 <head>
-	<title><?php translate('Portmatrix'); ?> - <?php translate('Switchconfig'); ?></title>
+	<title><?php translate('Portmatrix'); ?> - <?php translate('Cisco Switch Manager GUI'); ?></title>
 	<?php require('head.inc.php'); ?>
 	<link rel='stylesheet' type='text/css' href='css/intmatrix.css'>
 </head>

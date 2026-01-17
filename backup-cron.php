@@ -12,7 +12,7 @@
  *   --switch   Backup only a specific switch by address
  *
  * Example cron entry (daily at 2am):
- *   0 2 * * * /usr/bin/php /var/www/switchconfig/backup-cron.php --sync --quiet >> /var/log/switchconfig-backup.log 2>&1
+ *   0 2 * * * /usr/bin/php /var/www/cisco-switch-manager-gui/backup-cron.php --sync --quiet >> /var/log/cisco-switch-manager-gui-backup.log 2>&1
  */
 
 // Ensure running from CLI
@@ -32,7 +32,7 @@ $options = getopt('', ['sync', 'quiet', 'switch:', 'help']);
 
 if (isset($options['help'])) {
 	echo <<<HELP
-SwitchConfig Backup CLI
+Cisco Switch Manager GUI Backup CLI
 
 Usage: php backup-cron.php [options]
 
@@ -43,7 +43,7 @@ Options:
   --help          Show this help message
 
 Example cron entry (daily at 2am):
-  0 2 * * * /usr/bin/php /var/www/switchconfig/backup-cron.php --sync --quiet
+  0 2 * * * /usr/bin/php /var/www/cisco-switch-manager-gui/backup-cron.php --sync --quiet
 
 HELP;
 	exit(0);
