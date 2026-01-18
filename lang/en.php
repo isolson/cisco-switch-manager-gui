@@ -75,6 +75,15 @@ $_LANG['Directory is writable.'] = 'Directory is writable.';
 $_LANG['Directory does not exist yet. It will be created automatically.'] = 'Directory does not exist yet. It will be created automatically.';
 $_LANG['Directory is not writable. Check permissions.'] = 'Directory is not writable. Check permissions.';
 
+// Navigation
+$_LANG['Monitoring'] = 'Monitoring';
+$_LANG['Backups'] = 'Backups';
+$_LANG['Switch Monitoring'] = 'Switch Monitoring';
+$_LANG['Manage switches'] = 'Manage switches';
+$_LANG['Manage users and system settings'] = 'Manage users and system settings';
+$_LANG['Change switch password'] = 'Change switch password';
+$_LANG['Password'] = 'Password';
+
 // Misc
 $_LANG['you'] = 'you';
 $_LANG['Manage switches, credentials, and users.'] = 'Manage switches, credentials, and users.';
