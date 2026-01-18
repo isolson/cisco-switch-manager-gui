@@ -1,3 +1,15 @@
+Version 10.0.0.0 [Olson] [01/2026]
+- Web interface authentication system with admin accounts
+- Switch management GUI (add/edit/remove switches via browser)
+- Credential management with AES-256-GCM encryption at rest
+- Separate Switches and Settings pages
+- Config backup feature with GitHub sync support
+- Docker and Raspberry Pi installation support
+- New responsive navigation with "Switch Manager" branding
+- Theme selector (System/Light/Dark mode)
+- Improved mobile and widescreen layouts
+- Removed SLUB branding
+
 Version 2.6.0.0 [Sieber] [01/2025]
 - redirect to desired page after login
 - fixed login when logout was done before

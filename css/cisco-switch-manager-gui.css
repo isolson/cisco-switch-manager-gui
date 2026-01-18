@@ -1,8 +1,11 @@
-/* Custom logo - replaces SLUB branding */
+/* Hide the content logo since we have branding in the nav bar */
 #logo {
-	background-image: url('../img/logo.svg');
-	width: 280px;
-	height: 50px;
+	display: none;
+}
+
+/* Also hide the title container if empty */
+h1#title {
+	display: none;
 }
 
 /* Top menu - responsive flexbox layout */
@@ -289,9 +292,6 @@ img[src='img/disabled.svg'] {
 
 /* dark mode */
 @media (prefers-color-scheme: dark) {
-	#logo {
-		background-image: url('../img/logo.white.svg');
-	}
 	.demoStatusIcon > img {
 		background-color: rgba(60,60,60,1);
 	}
@@ -300,6 +300,44 @@ img[src='img/disabled.svg'] {
 	}
 	.brand-link:hover {
 		color: #ff6666;
+	}
+
+	/* Fix text colors in content areas - ensure dark text on light backgrounds */
+	.tab-content,
+	.tab-content h2,
+	.tab-content p,
+	.tab-content th,
+	.tab-content td,
+	.tab-content label,
+	.settings-section,
+	.settings-section h3,
+	.settings-section p,
+	.modal-content,
+	.modal-content h2,
+	.modal-content label,
+	.data-table th,
+	.data-table td {
+		color: #333 !important;
+	}
+
+	.tab-nav a {
+		color: #333;
+	}
+
+	.hint {
+		color: #666 !important;
+	}
+
+	/* Ensure inputs have proper styling in dark mode */
+	.tab-content input[type="text"],
+	.tab-content input[type="password"],
+	.tab-content select,
+	.modal-content input[type="text"],
+	.modal-content input[type="password"],
+	.modal-content select {
+		background-color: #fff;
+		color: #333;
+		border-color: #ccc;
 	}
 }
 
