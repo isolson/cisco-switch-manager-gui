@@ -575,9 +575,11 @@ img[src='img/disabled.svg'] {
 	background-color: #3a2a2a !important;
 }
 
-/* ============ SYSTEM PREFERENCE (no explicit theme) ============ */
-/* When system is dark and no explicit theme is set */
+/* ============ SYSTEM PREFERENCE DARK MODE ============ */
+/* When system prefers dark and no explicit theme is set */
+/* The webdesign template has white content boxes - we need dark text inside them */
 @media (prefers-color-scheme: dark) {
+	/* Nav bar elements - keep light for dark nav background */
 	html:not([data-theme]) .brand-link,
 	html:not([data-theme]) .brand-text {
 		color: #fff;
@@ -587,6 +589,154 @@ img[src='img/disabled.svg'] {
 	}
 	html:not([data-theme]) .demoStatusIcon > img {
 		background-color: rgba(60,60,60,1);
+	}
+
+	/*
+	 * CRITICAL FIX: The webdesign template creates white content boxes (#splash)
+	 * but system dark mode sets light text globally. We must force dark text
+	 * inside these white boxes for readability.
+	 */
+	html:not([data-theme]) #splash {
+		color: #333 !important;
+	}
+
+	/* Target ALL elements inside splash - this is the main content area */
+	html:not([data-theme]) #splash *:not(.slubbutton):not(.brand-text):not(.brand-link):not(.progress-output):not(.progress-output *) {
+		color: #333 !important;
+	}
+
+	/* Buttons should keep their proper colors */
+	html:not([data-theme]) #splash .slubbutton {
+		color: white !important;
+	}
+	html:not([data-theme]) #splash .slubbutton.secondary {
+		color: #006070 !important;
+	}
+	html:not([data-theme]) #splash .slubbutton.destructive {
+		color: #cc0000 !important;
+	}
+
+	/* Progress/terminal output should stay dark with light text */
+	html:not([data-theme]) .progress-output,
+	html:not([data-theme]) .progress-output * {
+		color: #0f0 !important;
+		background-color: #1e1e1e !important;
+	}
+	html:not([data-theme]) .progress-output .changeok {
+		color: #4caf50 !important;
+	}
+	html:not([data-theme]) .progress-output .changefail {
+		color: #f44336 !important;
+	}
+
+	/* Tab navigation */
+	html:not([data-theme]) .tab-nav a {
+		color: #333 !important;
+		background-color: #f5f5f5 !important;
+	}
+	html:not([data-theme]) .tab-nav a.active {
+		background-color: #fff !important;
+	}
+
+	/* Hints and secondary text */
+	html:not([data-theme]) .hint {
+		color: #666 !important;
+	}
+
+	/* Info boxes with specific states */
+	html:not([data-theme]) .infobox {
+		color: #333 !important;
+	}
+	html:not([data-theme]) .infobox.warn {
+		background-color: #fff3cd !important;
+		color: #856404 !important;
+	}
+	html:not([data-theme]) .infobox.ok {
+		background-color: #d4edda !important;
+		color: #155724 !important;
+	}
+	html:not([data-theme]) .infobox.info {
+		background-color: #cce5ff !important;
+		color: #004085 !important;
+	}
+	html:not([data-theme]) .infobox.error {
+		background-color: #f8d7da !important;
+		color: #721c24 !important;
+	}
+
+	/* Links inside white content areas */
+	html:not([data-theme]) #splash a:not(.slubbutton):not(.brand-link) {
+		color: #008CA0 !important;
+	}
+
+	/* Form inputs */
+	html:not([data-theme]) #splash input[type="text"],
+	html:not([data-theme]) #splash input[type="password"],
+	html:not([data-theme]) #splash input[type="url"],
+	html:not([data-theme]) #splash input[type="number"],
+	html:not([data-theme]) #splash select,
+	html:not([data-theme]) #splash textarea {
+		color: #333 !important;
+		background-color: #fff !important;
+		border-color: #ccc !important;
+	}
+
+	/* Backup status badges */
+	html:not([data-theme]) .backup-status.status-ok {
+		background-color: #d4edda !important;
+		color: #155724 !important;
+	}
+	html:not([data-theme]) .backup-status.status-error {
+		background-color: #f8d7da !important;
+		color: #721c24 !important;
+	}
+	html:not([data-theme]) .backup-status.status-pending {
+		background-color: #fff3cd !important;
+		color: #856404 !important;
+	}
+	html:not([data-theme]) .backup-status.status-none {
+		background-color: #e9ecef !important;
+		color: #495057 !important;
+	}
+
+	/* GitHub status box */
+	html:not([data-theme]) .github-status {
+		color: #333 !important;
+	}
+
+	/* Switch list table */
+	html:not([data-theme]) .switch-list th,
+	html:not([data-theme]) .switch-list td {
+		color: #333 !important;
+	}
+
+	/* Data tables */
+	html:not([data-theme]) .data-table th,
+	html:not([data-theme]) .data-table td {
+		color: #333 !important;
+	}
+
+	/* Theme options on settings page */
+	html:not([data-theme]) .theme-option {
+		color: #333 !important;
+	}
+
+	/* Modal content */
+	html:not([data-theme]) .modal-content,
+	html:not([data-theme]) .modal-content * {
+		color: #333 !important;
+	}
+
+	/* Settings sections */
+	html:not([data-theme]) .settings-section,
+	html:not([data-theme]) .settings-section * {
+		color: #333 !important;
+	}
+
+	/* Setup steps on backup page */
+	html:not([data-theme]) .setup-step,
+	html:not([data-theme]) .setup-step * {
+		color: #333 !important;
 	}
 }
 
