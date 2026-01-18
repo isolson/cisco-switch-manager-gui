@@ -5,6 +5,8 @@
 <link rel='stylesheet' type='text/css' href='webdesign-template/css/main.css'>
 <link rel='stylesheet' type='text/css' href='css/cisco-switch-manager-gui.css'>
 
+<script src='js/theme.js'></script>
+
 <?php
 if(file_exists(__DIR__.'/css/custom.css')) {
 	echo '<link rel="stylesheet" type="text/css" href="css/custom.css"></link>';

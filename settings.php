@@ -370,9 +370,11 @@ function importCredentials() {
 	});
 }
 
-// Theme handling
+// Theme handling - uses global applyTheme from js/theme.js
 (function() {
 	const savedTheme = localStorage.getItem('theme') || 'system';
+
+	// Update UI to show current selection
 	document.querySelectorAll('.theme-option').forEach(opt => {
 		opt.classList.remove('active');
 		if (opt.querySelector('input').value === savedTheme) {
@@ -381,27 +383,19 @@ function importCredentials() {
 		}
 	});
 
+	// Handle theme selection changes
 	document.querySelectorAll('.theme-option input').forEach(input => {
 		input.addEventListener('change', function() {
 			const theme = this.value;
 			localStorage.setItem('theme', theme);
 			document.querySelectorAll('.theme-option').forEach(opt => opt.classList.remove('active'));
 			this.closest('.theme-option').classList.add('active');
-			applyTheme(theme);
+			// Use global applyTheme from js/theme.js
+			if (window.applyTheme) {
+				window.applyTheme(theme);
+			}
 		});
 	});
-
-	function applyTheme(theme) {
-		if (theme === 'dark') {
-			document.documentElement.setAttribute('data-theme', 'dark');
-		} else if (theme === 'light') {
-			document.documentElement.setAttribute('data-theme', 'light');
-		} else {
-			document.documentElement.removeAttribute('data-theme');
-		}
-	}
-
-	applyTheme(savedTheme);
 })();
 </script>
 

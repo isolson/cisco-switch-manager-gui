@@ -7,9 +7,8 @@ Dockerfile
 docker-compose*.yml
 .dockerignore
 
-# Development/docs
+# Development
 *.md
-docs/
 .github/
 
 # Config files (mounted as volumes)
