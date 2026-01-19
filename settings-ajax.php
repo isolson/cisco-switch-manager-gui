@@ -11,6 +11,7 @@ require_once('config.php');
 require_once('php/switchmanagement.php');
 require_once('php/useroperations.php');
 require_once('php/auth.php');
+require_once('php/csrf.php');
 
 header('Content-Type: application/json');
 
@@ -78,6 +79,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 // Handle POST requests
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	$input = json_decode(file_get_contents('php://input'), true);
+
+	// Validate CSRF token (sent in request body)
+	$csrfToken = $input['csrf_token'] ?? '';
+	if (!validateCSRFToken($csrfToken)) {
+		echo json_encode(['success' => false, 'error' => 'Security token expired. Please refresh the page and try again.']);
+		exit();
+	}
+
 	$action = $input['action'] ?? '';
 
 	switch ($action) {

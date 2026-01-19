@@ -5,10 +5,14 @@ require_once('php/functions.php');
 require_once('config.php');
 require_once('php/switchmanagement.php');
 require_once('lang.php');
+require_once('php/csrf.php');
 
 $info = "";
 $infoClass = "";
 $activeTab = isset($_GET['tab']) ? $_GET['tab'] : 'switches';
+
+// Get CSRF token for JavaScript
+$csrfToken = getCSRFToken();
 
 ?>
 <!DOCTYPE html>
@@ -242,6 +246,9 @@ $activeTab = isset($_GET['tab']) ? $_GET['tab'] : 'switches';
 <?php require('menu.inc.php'); ?>
 
 <script>
+// CSRF token for AJAX requests
+const csrfToken = '<?php echo htmlspecialchars($csrfToken, ENT_QUOTES); ?>';
+
 // Modal functions
 function openModal(id) {
 	document.getElementById(id).style.display = 'block';
@@ -289,7 +296,7 @@ function deleteSwitch(addr) {
 	fetch('settings-ajax.php', {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },
-		body: JSON.stringify({ action: 'delete_switch', addr: addr })
+		body: JSON.stringify({ action: 'delete_switch', addr: addr, csrf_token: csrfToken })
 	})
 	.then(response => response.json())
 	.then(data => {
@@ -310,7 +317,8 @@ document.getElementById('switch-form').addEventListener('submit', function(e) {
 		addr: formData.get('addr'),
 		name: formData.get('name'),
 		group: formData.get('group'),
-		credential: formData.get('credential')
+		credential: formData.get('credential'),
+		csrf_token: csrfToken
 	};
 
 	fetch('settings-ajax.php', {
@@ -354,7 +362,7 @@ function deleteCredential(id) {
 	fetch('settings-ajax.php', {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },
-		body: JSON.stringify({ action: 'delete_credential', id: id })
+		body: JSON.stringify({ action: 'delete_credential', id: id, csrf_token: csrfToken })
 	})
 	.then(response => response.json())
 	.then(data => {
@@ -374,7 +382,8 @@ document.getElementById('credential-form').addEventListener('submit', function(e
 		id: formData.get('id'),
 		name: formData.get('name'),
 		username: formData.get('username'),
-		password: formData.get('password')
+		password: formData.get('password'),
+		csrf_token: csrfToken
 	};
 
 	fetch('settings-ajax.php', {

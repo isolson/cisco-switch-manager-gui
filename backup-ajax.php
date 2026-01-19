@@ -7,6 +7,7 @@ require_once('php/session.php');
 require_once('php/functions.php');
 require_once('config.php');
 require_once('php/backupoperations.php');
+require_once('php/csrf.php');
 
 header('Content-Type: application/json');
 
@@ -14,6 +15,15 @@ header('Content-Type: application/json');
 if (!defined('ENABLE_CONFIG_BACKUP') || !ENABLE_CONFIG_BACKUP) {
 	echo json_encode(['error' => 'Config backup feature is disabled']);
 	exit;
+}
+
+// Validate CSRF token for POST requests
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+	$csrfToken = $_POST['csrf_token'] ?? '';
+	if (!validateCSRFToken($csrfToken)) {
+		echo json_encode(['success' => false, 'error' => 'Security token expired. Please refresh the page.']);
+		exit;
+	}
 }
 
 $action = $_GET['action'] ?? $_POST['action'] ?? '';

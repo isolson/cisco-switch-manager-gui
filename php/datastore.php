@@ -36,7 +36,7 @@ function getDataDir() {
 		// Check if parent directory exists and is writable
 		$parentDir = dirname($primaryDir);
 		if (is_dir($parentDir) && is_writable($parentDir)) {
-			if (@mkdir($primaryDir, 0755, true)) {
+			if (@mkdir($primaryDir, 0700, true)) {
 				$dataDir = $primaryDir;
 				return $dataDir;
 			}
@@ -45,7 +45,7 @@ function getDataDir() {
 
 	// Use fallback directory
 	if (!is_dir($fallbackDir)) {
-		@mkdir($fallbackDir, 0755, true);
+		@mkdir($fallbackDir, 0700, true);
 	}
 
 	$dataDir = $fallbackDir;
@@ -63,7 +63,7 @@ define('DATA_DIR', getDataDir());
 function ensureDataDir() {
 	$dir = getDataDir();
 	if (!is_dir($dir)) {
-		if (!@mkdir($dir, 0755, true)) {
+		if (!@mkdir($dir, 0700, true)) {
 			error_log("Datastore: Failed to create directory: $dir");
 			return false;
 		}

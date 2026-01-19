@@ -5,6 +5,7 @@ require_once('php/functions.php');
 require_once('config.php');
 require_once('php/backupoperations.php');
 require_once('lang.php');
+require_once('php/csrf.php');
 
 // Check if feature is enabled
 if (!defined('ENABLE_CONFIG_BACKUP') || !ENABLE_CONFIG_BACKUP) {
@@ -17,11 +18,19 @@ $infoClass = "";
 $showSetup = !$settings['github_configured'];
 $activeTab = isset($_GET['tab']) ? $_GET['tab'] : ($showSetup ? 'setup' : 'backup');
 
+// Get CSRF token for JavaScript
+$csrfToken = getCSRFToken();
+
 // Handle form submissions
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
+	// Validate CSRF token for all POST requests
+	if (!checkCSRFToken()) {
+		$info = translate('Security token expired. Please try again.', false);
+		$infoClass = 'error';
+	}
 	// GitHub Setup
-	if (isset($_POST['action']) && $_POST['action'] === 'setup_github') {
+	elseif (isset($_POST['action']) && $_POST['action'] === 'setup_github') {
 		$repoUrl = trim($_POST['github_repo'] ?? '');
 		$token = trim($_POST['github_token'] ?? '');
 		$branch = trim($_POST['github_branch'] ?? 'main');
@@ -198,6 +207,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 							<?php } ?>
 						</div>
 						<form method="POST">
+							<?php csrfField(); ?>
 							<input type="hidden" name="action" value="reset_github">
 							<button type="submit" class="slubbutton destructive" onclick="return confirm('Reset GitHub configuration?');">
 								<?php echo translate('Reset Configuration', false); ?>
@@ -229,6 +239,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 						<div class="setup-step">
 							<h3><?php echo translate('Step 3: Configure Connection', false); ?></h3>
 							<form method="POST">
+								<?php csrfField(); ?>
 								<input type="hidden" name="action" value="setup_github">
 
 								<label for="github_repo"><?php echo translate('Repository URL', false); ?></label>
@@ -331,6 +342,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 								| <?php echo translate('Last sync', false); ?>: <?php echo htmlspecialchars($settings['last_sync']); ?>
 							<?php } ?>
 							<form method="POST" style="display: inline; margin-left: 15px;">
+								<?php csrfField(); ?>
 								<input type="hidden" name="action" value="sync_github">
 								<button type="submit" class="slubbutton secondary small"><?php echo translate('Sync Now', false); ?></button>
 							</form>
@@ -343,6 +355,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 					<h2><?php echo translate('Switch Backups', false); ?></h2>
 
 					<form method="POST" id="backupAllForm">
+						<?php csrfField(); ?>
 						<input type="hidden" name="action" value="backup_all">
 						<button type="button" class="slubbutton" onclick="backupAllSwitches();">
 							<?php echo translate('Backup All Switches', false); ?>
@@ -374,6 +387,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 							</td>
 							<td>
 								<form method="POST" style="display: inline;">
+									<?php csrfField(); ?>
 									<input type="hidden" name="action" value="backup_switch">
 									<input type="hidden" name="switch_addr" value="<?php echo htmlspecialchars($s['addr']); ?>">
 									<button type="submit" class="slubbutton secondary small"><?php echo translate('Backup', false); ?></button>
@@ -399,14 +413,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <?php require('menu.inc.php'); ?>
 
 <script>
+// CSRF token for AJAX requests
+const csrfToken = '<?php echo htmlspecialchars($csrfToken, ENT_QUOTES); ?>';
+
 function backupAllSwitches() {
 	const output = document.getElementById('progressOutput');
 	output.style.display = 'block';
 	output.innerHTML = 'Starting backup of all switches...\n';
 
+	const formData = new FormData();
+	formData.append('csrf_token', csrfToken);
+
 	fetch('backup-ajax.php?action=backup_all', {
 		method: 'POST',
-		headers: { 'Content-Type': 'application/json' }
+		body: formData
 	})
 	.then(response => response.json())
 	.then(data => {

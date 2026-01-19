@@ -7,6 +7,7 @@ require_once('php/functions.php');
 require_once('config.php');
 require_once('php/switchoperations.php');
 require_once('lang.php');
+require_once('php/csrf.php');
 
 
 /* READ INPUT */
@@ -50,7 +51,11 @@ $cmdOutput = "";
 $info = "";
 $infoClass = "";
 if($cSwitch != null && isset($_POST['action']) && $_POST['action'] === 'SETVALUES') {
-	if(startsWith($port, VISIBLE_PORTS) && !startsWith($port, HIDDEN_PORTS)) {
+	// Validate CSRF token
+	if (!checkCSRFToken()) {
+		$info = translate('Security token expired. Please try again.', false);
+		$infoClass = "error";
+	} elseif(startsWith($port, VISIBLE_PORTS) && !startsWith($port, HIDDEN_PORTS)) {
 		$cmdOutput = setValues($cSwitch['addr'], $port, $vlan, $desc, $voip);
 		$info = translate('New settings sent to switch.', false);
 		$infoClass = "ok";
@@ -118,10 +123,12 @@ if($cSwitch != null) {
 	}
 	</script>
 
-	<?php if(!empty($cmdOutput)) { ?>
-	<span id='sshDebugOutput'>
-		[DEBUG] SSH SWITCH OUTPUT:
-		<?php echo $cmdOutput . "\n" ?>
+	<?php
+	// Debug output only when DEBUG constant is enabled
+	if (!empty($cmdOutput) && defined('DEBUG') && DEBUG === true) { ?>
+	<!-- Debug output (enable DEBUG in config.php to see) -->
+	<span id='sshDebugOutput' style='display:none;'>
+		<?php echo htmlspecialchars($cmdOutput) . "\n" ?>
 	</span>
 	<?php } ?>
 
@@ -229,6 +236,7 @@ if($cSwitch != null) {
 			</form>
 
 			<form method='POST' name='setvaluesform' onsubmit='beginFadeOutAnimation();'>
+				<?php csrfField(); ?>
 				<input type='hidden' name='action' value='SETVALUES'></input>
 				<input type='hidden' name='switch' value='<?php echo $cSwitch==null ? '' : $cSwitch['addr']; ?>'></input>
 				<input type='hidden' name='port' value='<?php echo $port; ?>'></input>

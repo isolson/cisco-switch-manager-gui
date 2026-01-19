@@ -6,10 +6,14 @@ require_once('config.php');
 require_once('php/switchmanagement.php');
 require_once('php/useroperations.php');
 require_once('lang.php');
+require_once('php/csrf.php');
 
 $info = "";
 $infoClass = "";
 $activeTab = isset($_GET['tab']) ? $_GET['tab'] : 'users';
+
+// Get CSRF token for JavaScript
+$csrfToken = getCSRFToken();
 
 // Get current web user
 $currentUser = getCurrentWebUser();
@@ -239,6 +243,9 @@ $currentUser = getCurrentWebUser();
 <?php require('menu.inc.php'); ?>
 
 <script>
+// CSRF token for AJAX requests
+const csrfToken = '<?php echo htmlspecialchars($csrfToken, ENT_QUOTES); ?>';
+
 // Modal functions
 function openModal(id) {
 	document.getElementById(id).style.display = 'block';
@@ -287,7 +294,7 @@ function deleteUser(id) {
 	fetch('settings-ajax.php', {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },
-		body: JSON.stringify({ action: 'delete_user', id: id })
+		body: JSON.stringify({ action: 'delete_user', id: id, csrf_token: csrfToken })
 	})
 	.then(response => response.json())
 	.then(data => {
@@ -307,7 +314,8 @@ document.getElementById('user-form').addEventListener('submit', function(e) {
 		id: formData.get('id'),
 		username: formData.get('username'),
 		password: formData.get('password'),
-		role: formData.get('role')
+		role: formData.get('role'),
+		csrf_token: csrfToken
 	};
 
 	fetch('settings-ajax.php', {
@@ -340,7 +348,7 @@ function importSwitches() {
 	fetch('settings-ajax.php', {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },
-		body: JSON.stringify({ action: 'import_switches' })
+		body: JSON.stringify({ action: 'import_switches', csrf_token: csrfToken })
 	})
 	.then(response => response.json())
 	.then(data => {
@@ -358,7 +366,7 @@ function importCredentials() {
 	fetch('settings-ajax.php', {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },
-		body: JSON.stringify({ action: 'import_credentials' })
+		body: JSON.stringify({ action: 'import_credentials', csrf_token: csrfToken })
 	})
 	.then(response => response.json())
 	.then(data => {

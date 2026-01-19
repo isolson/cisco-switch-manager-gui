@@ -1,6 +1,7 @@
 <?php
 
 require_once('functions.php');
+require_once(__DIR__ . '/encryption.php');
 
 /**
  * Get credentials for a switch (from datastore, template, or session)
@@ -161,9 +162,9 @@ function saveConfigBackup($switchAddr, $switchName, $config) {
 	$safeName = preg_replace('/[^a-zA-Z0-9._-]/', '_', $switchAddr);
 	$switchDir = $backupDir . '/configs/' . $safeName;
 
-	// Create directories if needed
+	// Create directories if needed (secure permissions)
 	if (!is_dir($switchDir)) {
-		if (!@mkdir($switchDir, 0755, true)) {
+		if (!@mkdir($switchDir, 0700, true)) {
 			return ['success' => false, 'path' => '', 'error' => 'Failed to create backup directory: ' . $switchDir];
 		}
 	}
@@ -221,6 +222,7 @@ function cleanupOldBackups($switchDir) {
 
 /**
  * Get backup settings from JSON file
+ * Decrypts the GitHub token if stored encrypted
  *
  * @return array Settings array
  */
@@ -246,11 +248,28 @@ function getBackupSettings() {
 	}
 
 	$settings = json_decode($content, true);
-	return is_array($settings) ? $settings : ['github_configured' => false];
+	if (!is_array($settings)) {
+		return ['github_configured' => false];
+	}
+
+	// Decrypt GitHub token if it's encrypted (has 'github_token_encrypted' field)
+	if (isset($settings['github_token_encrypted']) && !empty($settings['github_token_encrypted'])) {
+		$decrypted = decryptData($settings['github_token_encrypted']);
+		if ($decrypted !== false) {
+			$settings['github_token'] = $decrypted;
+		} else {
+			$settings['github_token'] = ''; // Decryption failed
+		}
+		// Don't expose the encrypted field to callers
+		unset($settings['github_token_encrypted']);
+	}
+
+	return $settings;
 }
 
 /**
  * Save backup settings to JSON file
+ * Encrypts the GitHub token for secure storage
  *
  * @param array $settings Settings to save
  * @return bool Success
@@ -260,15 +279,30 @@ function saveBackupSettings($settings) {
 		? BACKUP_SETTINGS_FILE
 		: '/var/lib/cisco-switch-manager-gui/backup_settings.json';
 
-	// Ensure directory exists
+	// Ensure directory exists with secure permissions
 	$dir = dirname($settingsFile);
 	if (!is_dir($dir)) {
-		if (!@mkdir($dir, 0755, true)) {
+		if (!@mkdir($dir, 0700, true)) {
 			return false;
 		}
 	}
 
-	return @file_put_contents($settingsFile, json_encode($settings, JSON_PRETTY_PRINT)) !== false;
+	// Make a copy for storage
+	$storageSettings = $settings;
+
+	// Encrypt the GitHub token before saving
+	if (isset($storageSettings['github_token']) && !empty($storageSettings['github_token'])) {
+		$encrypted = encryptData($storageSettings['github_token']);
+		if ($encrypted !== false) {
+			$storageSettings['github_token_encrypted'] = $encrypted;
+			// Remove plaintext token from storage
+			unset($storageSettings['github_token']);
+		}
+		// If encryption fails, we'll store it unencrypted (backward compatibility)
+		// but this is not ideal - encryption should be working
+	}
+
+	return @file_put_contents($settingsFile, json_encode($storageSettings, JSON_PRETTY_PRINT)) !== false;
 }
 
 /**
@@ -280,7 +314,7 @@ function initGitRepo() {
 	$backupDir = defined('BACKUP_DIR') ? BACKUP_DIR : '/var/lib/cisco-switch-manager-gui/backups';
 
 	if (!is_dir($backupDir)) {
-		if (!@mkdir($backupDir, 0755, true)) {
+		if (!@mkdir($backupDir, 0700, true)) {
 			return ['success' => false, 'error' => 'Failed to create backup directory'];
 		}
 	}

@@ -7,6 +7,7 @@
 require_once('lang.php');
 require_once('php/session-options.php');
 require_once('php/auth.php');
+require_once('php/csrf.php');
 
 // If already set up, redirect to login
 if (!needsSetup()) {
@@ -19,41 +20,48 @@ $infoClass = '';
 
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-	$username = trim($_POST['username'] ?? '');
-	$password = $_POST['password'] ?? '';
-	$confirmPassword = $_POST['confirm_password'] ?? '';
-
-	// Validate input
-	$usernameValidation = validateUsername($username);
-	$passwordValidation = validatePassword($password);
-
-	if (!$usernameValidation['valid']) {
-		$info = implode(' ', $usernameValidation['errors']);
-		$infoClass = 'error';
-	} elseif (!$passwordValidation['valid']) {
-		$info = implode(' ', $passwordValidation['errors']);
-		$infoClass = 'error';
-	} elseif ($password !== $confirmPassword) {
-		$info = translate('Passwords do not match.', false);
+	// Validate CSRF token
+	if (!checkCSRFToken()) {
+		$info = translate('Security token expired. Please try again.', false);
 		$infoClass = 'error';
 	} else {
-		// Create the admin user
-		$result = createInitialAdmin($username, $password);
+		$username = trim($_POST['username'] ?? '');
+		$password = $_POST['password'] ?? '';
+		$confirmPassword = $_POST['confirm_password'] ?? '';
 
-		if ($result['success']) {
-			// Auto-login the new admin
-			$user = authenticateWebUser($username, $password);
-			if ($user) {
-				startWebSession($user);
-				header('Location: index.php');
-				exit();
-			} else {
-				header('Location: login.php?reason=setup_complete');
-				exit();
-			}
-		} else {
-			$info = $result['error'];
+		// Validate input
+		$usernameValidation = validateUsername($username);
+		$passwordValidation = validatePassword($password);
+
+		if (!$usernameValidation['valid']) {
+			$info = implode(' ', $usernameValidation['errors']);
 			$infoClass = 'error';
+		} elseif (!$passwordValidation['valid']) {
+			$info = implode(' ', $passwordValidation['errors']);
+			$infoClass = 'error';
+		} elseif ($password !== $confirmPassword) {
+			$info = translate('Passwords do not match.', false);
+			$infoClass = 'error';
+		} else {
+			// Create the admin user
+			$result = createInitialAdmin($username, $password);
+
+			if ($result['success']) {
+				// Auto-login the new admin - regenerate session ID first
+				session_regenerate_id(true);
+				$user = authenticateWebUser($username, $password);
+				if ($user) {
+					startWebSession($user);
+					header('Location: index.php');
+					exit();
+				} else {
+					header('Location: login.php?reason=setup_complete');
+					exit();
+				}
+			} else {
+				$info = $result['error'];
+				$infoClass = 'error';
+			}
 		}
 	}
 }
@@ -115,6 +123,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 				<p><?php translate('This account is for logging into the web interface. Switch SSH credentials can be configured later.'); ?></p>
 
 				<form method='POST' name='setupform' id='frmSetup'>
+					<?php csrfField(); ?>
 					<div class='form-row icon'>
 						<input type='text' id='username' name='username' placeholder='<?php translate('Username'); ?>'
 							   value='<?php echo htmlspecialchars($_POST['username'] ?? ''); ?>'

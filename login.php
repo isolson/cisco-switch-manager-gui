@@ -5,6 +5,8 @@ require_once('lang.php');
 require_once('php/session-options.php');
 require_once('php/auth.php');
 require_once('php/switchmanagement.php');
+require_once('php/csrf.php');
+require_once('php/ratelimit.php');
 
 // Check if setup is required
 if (needsSetup()) {
@@ -14,6 +16,14 @@ if (needsSetup()) {
 
 $info = '';
 $infoClass = '';
+
+// Check for lockout before processing login
+$lockoutStatus = isLockedOut();
+if ($lockoutStatus['locked']) {
+	$minutes = ceil($lockoutStatus['remaining'] / 60);
+	$infoClass = 'error';
+	$info = translate('Too many failed login attempts. Please try again in', false) . ' ' . $minutes . ' ' . translate('minutes', false) . '.';
+}
 
 if(isset($_SESSION['web_user_authenticated']) && isset($_GET['logout'])) {
 
@@ -27,77 +37,110 @@ if(isset($_SESSION['web_user_authenticated']) && isset($_GET['logout'])) {
 	$infoClass = 'ok';
 	$info = translate('Successfully logged out', false);
 
-} elseif(isset($_POST['username']) && isset($_POST['password'])) {
+} elseif(isset($_POST['username']) && isset($_POST['password']) && !$lockoutStatus['locked']) {
 
-	// Try web user authentication first
-	$webUser = authenticateWebUser($_POST['username'], $_POST['password']);
+	// Validate CSRF token
+	if (!checkCSRFToken()) {
+		$infoClass = 'error';
+		$info = translate('Security token expired. Please try again.', false);
+	} else {
+		// Try web user authentication first
+		$webUser = authenticateWebUser($_POST['username'], $_POST['password']);
 
-	if ($webUser !== false) {
-		// Web authentication successful
-		startWebSession($webUser);
+		if ($webUser !== false) {
+			// Web authentication successful - clear failed attempts
+			clearFailedAttempts();
 
-		// Try to auto-authenticate switch credentials if stored
-		$switchCreds = getDefaultSwitchCredentials();
-		if ($switchCreds !== null) {
-			// Test if credentials work on a switch
+			// Regenerate session ID to prevent session fixation
+			session_regenerate_id(true);
+
+			// Start web session
+			startWebSession($webUser);
+
+			// Regenerate CSRF token after login
+			regenerateCSRFToken();
+
+			// Try to auto-authenticate switch credentials if stored
+			$switchCreds = getDefaultSwitchCredentials();
+			if ($switchCreds !== null) {
+				// Test if credentials work on a switch
+				$switches = getMergedSwitches();
+				$authSuccess = false;
+				foreach ($switches as $s) {
+					$connection = @ssh2_connect($s['addr'], 22);
+					if ($connection !== false) {
+						if (@ssh2_auth_password($connection, $switchCreds['username'], $switchCreds['password']) !== false) {
+							$_SESSION['username'] = $switchCreds['username'];
+							$_SESSION['password'] = $switchCreds['password'];
+							$_SESSION['last_activity'] = time();
+							$authSuccess = true;
+						}
+						break;
+					}
+				}
+			}
+
+			// Redirect to desired page
+			$redirect = 'index.php';
+			if(!empty($_GET['redirect'])
+			&& substr($_GET['redirect'], 0, 1) === '/') {
+				$redirect = $_GET['redirect'];
+			}
+			header('Location: '.$redirect);
+			die('Happy configuring!');
+
+		} else {
+			// Web auth failed, try legacy switch-only auth
+			// This supports backward compatibility when users haven't set up web auth
 			$switches = getMergedSwitches();
-			$authSuccess = false;
-			foreach ($switches as $s) {
+			$switchAuthSuccess = false;
+
+			foreach($switches as $s) {
 				$connection = @ssh2_connect($s['addr'], 22);
-				if ($connection !== false) {
-					if (@ssh2_auth_password($connection, $switchCreds['username'], $switchCreds['password']) !== false) {
-						$_SESSION['username'] = $switchCreds['username'];
-						$_SESSION['password'] = $switchCreds['password'];
-						$_SESSION['last_activity'] = time();
-						$authSuccess = true;
+				if($connection !== false) {
+					if(@ssh2_auth_password($connection, $_POST['username'], $_POST['password']) !== false) {
+						// Switch auth OK - but only if web users don't exist
+						if (!isDatastoreInitialized()) {
+							// Clear failed attempts for legacy auth too
+							clearFailedAttempts();
+
+							// Regenerate session ID
+							session_regenerate_id(true);
+
+							$_SESSION['username'] = $_POST['username'];
+							$_SESSION['password'] = $_POST['password'];
+							$_SESSION['last_activity'] = time();
+
+							$redirect = 'index.php';
+							if(!empty($_GET['redirect'])
+							&& substr($_GET['redirect'], 0, 1) === '/') {
+								$redirect = $_GET['redirect'];
+							}
+							header('Location: '.$redirect);
+							die('Happy configuring!');
+						}
+						$switchAuthSuccess = true;
 					}
 					break;
 				}
 			}
-		}
 
-		// Redirect to desired page
-		$redirect = 'index.php';
-		if(!empty($_GET['redirect'])
-		&& substr($_GET['redirect'], 0, 1) === '/') {
-			$redirect = $_GET['redirect'];
-		}
-		header('Location: '.$redirect);
-		die('Happy configuring!');
+			// Record failed attempt
+			$attemptResult = recordFailedAttempt();
 
-	} else {
-		// Web auth failed, try legacy switch-only auth
-		// This supports backward compatibility when users haven't set up web auth
-		$switches = getMergedSwitches();
-		$switchAuthSuccess = false;
-
-		foreach($switches as $s) {
-			$connection = @ssh2_connect($s['addr'], 22);
-			if($connection !== false) {
-				if(@ssh2_auth_password($connection, $_POST['username'], $_POST['password']) !== false) {
-					// Switch auth OK - but only if web users don't exist
-					if (!isDatastoreInitialized()) {
-						$_SESSION['username'] = $_POST['username'];
-						$_SESSION['password'] = $_POST['password'];
-						$_SESSION['last_activity'] = time();
-
-						$redirect = 'index.php';
-						if(!empty($_GET['redirect'])
-						&& substr($_GET['redirect'], 0, 1) === '/') {
-							$redirect = $_GET['redirect'];
-						}
-						header('Location: '.$redirect);
-						die('Happy configuring!');
-					}
-					$switchAuthSuccess = true;
+			// Error message - login not valid
+			$infoClass = 'error';
+			if ($attemptResult['locked']) {
+				$minutes = ceil($attemptResult['remaining'] / 60);
+				$info = translate('Too many failed login attempts. Please try again in', false) . ' ' . $minutes . ' ' . translate('minutes', false) . '.';
+			} else {
+				$remaining = getRemainingAttempts();
+				$info = translate('Login failed', false);
+				if ($remaining <= 3) {
+					$info .= ' (' . $remaining . ' ' . translate('attempts remaining', false) . ')';
 				}
-				break;
 			}
 		}
-
-		// Error message - login not valid
-		$infoClass = 'error';
-		$info = translate('Login failed', false);
 	}
 
 } elseif(isset($_GET['reason']) && $_GET['reason'] == 'unavailable') {
@@ -191,17 +234,18 @@ if(isset($_SESSION['web_user_authenticated']) && isset($_GET['logout'])) {
 			<?php } ?>
 
 			<form method='POST' name='loginform' id='frmLogin' onsubmit='beginFadeOutAnimation();'>
+				<?php csrfField(); ?>
 				<div class='form-row icon'>
-					<input type='text' id='username' name='username' placeholder='<?php translate('Username'); ?>' autofocus='true' />
+					<input type='text' id='username' name='username' placeholder='<?php translate('Username'); ?>' autofocus='true' <?php if($lockoutStatus['locked']) echo 'disabled'; ?> />
 					<img src='webdesign-template/img/person.svg'>
 				</div>
 				<div class='form-row password icon'>
-					<input type='password' id='password' name='password' placeholder='<?php translate('Password'); ?>' />
+					<input type='password' id='password' name='password' placeholder='<?php translate('Password'); ?>' <?php if($lockoutStatus['locked']) echo 'disabled'; ?> />
 					<img src='webdesign-template/img/key.svg'>
 					<img src='webdesign-template/img/eye.svg' class='right showpassword' title='Kennwort anzeigen'>
 				</div>
 				<div class='form-row'>
-					<button id='submitLogin' class='slubbutton'><?php translate('Log In'); ?></button>
+					<button id='submitLogin' class='slubbutton' <?php if($lockoutStatus['locked']) echo 'disabled'; ?>><?php translate('Log In'); ?></button>
 				</div>
 			</form>
 

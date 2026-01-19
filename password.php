@@ -5,6 +5,8 @@ require_once('php/session.php');
 require_once('php/functions.php');
 require_once('config.php');
 require_once('lang.php');
+require_once('php/csrf.php');
+
 if(!ENABLE_PASSWORD_CHANGE) die('This feature is disabled.');
 
 ?>
@@ -58,29 +60,49 @@ if(!ENABLE_PASSWORD_CHANGE) die('This feature is disabled.');
 <?php
 $info = "";
 $showform = true;
+
+// Dangerous characters that could be used for command injection
+$dangerousChars = ['$', ' ', '"', "'", '>', '<', '|', "\n", "\r", '`', ';', '&', '(', ')', '{', '}', '[', ']', '\\'];
+
 if(isset($_POST['newpw']) && isset($_POST['newpw2'])) {
-	if($_POST['newpw'] == $_POST['newpw2']) {
+	// Validate CSRF token first
+	if (!checkCSRFToken()) {
+		$info = "<div class='infobox error'>".translate("Security token expired. Please try again.",false)."</div>";
+	} elseif($_POST['newpw'] == $_POST['newpw2']) {
 		if($_POST['newpw'] != "") {
-			if(strpos($_POST['newpw'], "$") === false && strpos($_POST['newpw'], " ") === false && strpos($_POST['newpw'], "\"") === false && strpos($_POST['newpw'], "'") === false && strpos($_POST['newpw'], ">") === false && strpos($_POST['newpw'], "|") === false && strpos($_POST['newpw'], "\n") === false) {
+			// Check for dangerous characters
+			$hasDangerousChars = false;
+			foreach ($dangerousChars as $char) {
+				if (strpos($_POST['newpw'], $char) !== false || strpos($_POST['username'], $char) !== false) {
+					$hasDangerousChars = true;
+					break;
+				}
+			}
+
+			if(!$hasDangerousChars) {
+				// Sanitize inputs
+				$safeUsername = preg_replace('/[^a-zA-Z0-9_-]/', '', $_POST['username']);
+				$safePassword = $_POST['newpw']; // Already validated above
 
 				echo "<script>beginFadeOutAnimation();</script>";
 
 				foreach(getAllSwitches() as $currentswitch) {
-					echo "<span>" . $currentswitch['name'] . "...</span>&nbsp;"; flush(); ob_flush();
+					echo "<span>" . htmlspecialchars($currentswitch['name']) . "...</span>&nbsp;"; flush(); ob_flush();
 
-					$connection = ssh2_connect($currentswitch['addr'], 22);
+					$connection = @ssh2_connect($currentswitch['addr'], 22);
 
 					if($connection !== false) {
-						if(ssh2_auth_password($connection, $_SESSION['username'], $_SESSION['password']) !== false) {
-							$stdio_stream = ssh2_shell($connection);
+						if(@ssh2_auth_password($connection, $_SESSION['username'], $_SESSION['password']) !== false) {
+							$stdio_stream = @ssh2_shell($connection);
 							if($stdio_stream !== false) {
 
 								fwrite($stdio_stream, "conf t" . "\n" .
-								                      "username " . $_POST['username'] . " password 0 " . $_POST['newpw'] . "\n" .
+								                      "username " . $safeUsername . " password 0 " . $safePassword . "\n" .
 								                      "end" . "\n" .
 								                      "wr mem" . "\n" .
 								                      "exit" . "\n");
-								$cmd_output .= "\n" . stream_get_contents($stdio_stream);
+								// Read output but don't store it (security)
+								stream_get_contents($stdio_stream);
 								echo "<span class='changeok'>OK</span><br>"; flush(); ob_flush();
 
 							} else {
@@ -101,7 +123,7 @@ if(isset($_POST['newpw']) && isset($_POST['newpw2'])) {
 				$showform = false;
 				echo "<script>endFadeOutAnimation();</script>";
 			} else {
-				$info = "<div class='infobox warn'>".translate("The following special chars are not allowed!",false)."<br><span style='font-family: monospace;'>\" | > $</span></div>";
+				$info = "<div class='infobox warn'>".translate("The following special chars are not allowed!",false)."<br><span style='font-family: monospace;'>\" | > $ &lt; ` ; &amp; ' ( ) { } [ ] \\</span></div>";
 			}
 		} else {
 			$info = "<div class='infobox warn'>".translate("The password cannot be empty",false)."</div>";
@@ -116,8 +138,9 @@ if(isset($_POST['newpw']) && isset($_POST['newpw2'])) {
 
 				<?php if($showform == true) { ?>
 					<form method='POST' name='passwordform' onsubmit='beginFadeOutAnimation();'>
+						<?php csrfField(); ?>
 						<div class='form-row'>
-							<input type='text' name='username' id='username' value='<?php echo $_SESSION['username']; ?>' readonly></input>
+							<input type='text' name='username' id='username' value='<?php echo htmlspecialchars($_SESSION['username']); ?>' readonly></input>
 							<span class='tip'><label for='description'><?php translate('Username'); ?></label></span>
 							<br>
 						</div>
@@ -144,11 +167,6 @@ if(isset($_POST['newpw']) && isset($_POST['newpw2'])) {
 		<?php require('foot.inc.php'); ?>
 
 	</div>
-
-	<span style='display: none'>
-		SWITCH-CONFIG OUTPUT:
-		<?php echo $cmd_output . "\n" ?>
-	</span>
 
 <?php require('menu.inc.php'); ?>
 
